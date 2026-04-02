@@ -1,13 +1,13 @@
-from rest_framework import generics, status
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
 from django.contrib.auth import login, logout
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 
-from .serializers import (
-    RegisterSerializer,
-    LoginSerializer,
-    UserSerializer,
-)
+from rest_framework import generics, status
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 
 
 class RegisterView(generics.CreateAPIView):
@@ -30,7 +30,6 @@ class LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
 
-        # This creates a session (for browsable API/admin); later you’ll also return a token/JWT
         login(request, user)
 
         return Response(
@@ -43,6 +42,24 @@ class LoginView(generics.GenericAPIView):
 
 
 class LogoutView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         logout(request)
         return Response({"message": "Logged out successfully."}, status=status.HTTP_200_OK)
+
+
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class CSRFTokenView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({"message": "CSRF cookie set"})

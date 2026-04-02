@@ -1,11 +1,12 @@
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from content.models import Episode
 from .models import ListeningProgress
 from .serializers import ProgressUpdateSerializer, ContinueListeningSerializer
-from content.models import Episode
 
 
 class UpdateListeningProgressView(generics.GenericAPIView):
@@ -20,8 +21,14 @@ class UpdateListeningProgressView(generics.GenericAPIView):
         episode_id = serializer.validated_data["episode_id"]
         progress_seconds = serializer.validated_data["progress_seconds"]
 
-        episode = Episode.objects.get(id=episode_id)
+        episode = get_object_or_404(
+            Episode,
+            id=episode_id,
+            is_published=True,
+            series__is_published=True,
+        )
 
+        progress_seconds = min(progress_seconds, episode.duration_seconds)
         is_completed = progress_seconds >= episode.duration_seconds
 
         progress_obj, created = ListeningProgress.objects.update_or_create(
@@ -33,12 +40,14 @@ class UpdateListeningProgressView(generics.GenericAPIView):
             },
         )
 
-        response_data = {
-            "message": "Listening progress saved successfully.",
-            "created": created,
-            "progress": ContinueListeningSerializer(progress_obj).data,
-        }
-        return Response(response_data, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "message": "Listening progress saved successfully.",
+                "created": created,
+                "progress": ContinueListeningSerializer(progress_obj).data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class ContinueListeningListView(generics.ListAPIView):

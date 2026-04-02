@@ -27,10 +27,17 @@ class EpisodeListSerializer(serializers.ModelSerializer):
 
 
 class EpisodeDetailSerializer(serializers.ModelSerializer):
+    series_id = serializers.IntegerField(source="series.id", read_only=True)
+    series_title = serializers.CharField(source="series.title", read_only=True)
+    series_slug = serializers.CharField(source="series.slug", read_only=True)
+
     class Meta:
         model = Episode
         fields = [
             "id",
+            "series_id",
+            "series_title",
+            "series_slug",
             "title",
             "description",
             "episode_number",
@@ -40,7 +47,6 @@ class EpisodeDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-
 
 class SeriesListSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
