@@ -185,6 +185,27 @@ This works with the native HTML audio player flow used in the current version of
 ### Auth
 - Auth endpoints are available for login and protected routes depending on current backend setup.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td><img src="docs/images/home-page.png" alt="Home Page" width="450" /></td>
+    <td><img src="docs/images/series-detail-page.png" alt="Series Detail Page" width="450" /></td>
+  </tr>
+  <tr>
+    <td align="center">Home Page</td>
+    <td align="center">Series Detail Page</td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/episode-player-page.png" alt="Episode Player Page" width="450" /></td>
+    <td><img src="docs/images/login-page.png" alt="Continue Listening Section" width="450" /></td>
+  </tr>
+  <tr>
+    <td align="center">Episode Player Page</td>
+    <td align="center">Login Page</td>
+  </tr>
+</table>
+
 
 ## Why I Built This
 
